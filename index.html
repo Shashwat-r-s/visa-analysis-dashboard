@@ -11,31 +11,86 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root{--bg:#0b1020;--panel:#121a2b;--panel-2:#182236;--border:#26344f;--text:#e6edf7;--muted:#94a3b8;--accent:#60a5fa;--accent-2:#34d399;--accent-3:#f59e0b;--danger:#f87171;--mono:'JetBrains Mono', monospace;--sans:'Inter', system-ui, sans-serif;--radius:16px;--sidebar:360px}
-    *{box-sizing:border-box} body{margin:0;font-family:var(--sans);background:linear-gradient(180deg,#09101d 0%, #0b1020 100%);color:var(--text)}
-    .app{display:grid;grid-template-columns:var(--sidebar) 1fr;min-height:100vh}.sidebar{background:#0d1424;border-right:1px solid var(--border);padding:18px 16px 24px;position:sticky;top:0;height:100vh;overflow:auto}.main{padding:20px;display:flex;flex-direction:column;gap:18px}
-    .title{font-size:20px;font-weight:700;margin:0 0 4px}.sub{color:var(--muted);font-size:12px;line-height:1.5}.card{background:rgba(18,26,43,.92);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.18)}
-    .filter-group{margin-top:16px}.filter-title{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#a8b6cf;font-weight:700;margin-bottom:10px}.filter{margin-bottom:12px}.filter label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:var(--sans);background:linear-gradient(180deg,#09101d 0%, #0b1020 100%);color:var(--text)}
+    .app{display:grid;grid-template-columns:var(--sidebar) 1fr;min-height:100vh}
+    .sidebar{background:#0d1424;border-right:1px solid var(--border);padding:18px 16px 24px;position:sticky;top:0;height:100vh;overflow:auto}
+    .main{padding:20px;display:flex;flex-direction:column;gap:18px}
+    .title{font-size:20px;font-weight:700;margin:0 0 4px}
+    .sub{color:var(--muted);font-size:12px;line-height:1.5}
+    .card{background:rgba(18,26,43,.92);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.18)}
+    .filter-group{margin-top:16px}
+    .filter-title{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#a8b6cf;font-weight:700;margin-bottom:10px}
+    .filter{margin-bottom:12px}
+    .filter label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
     select,input[type="text"],input[type="file"]{width:100%;background:var(--panel-2);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font:inherit}
     .dropdown-filter{position:relative}
     .dropdown-toggle{width:100%;background:var(--panel-2);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font:inherit;text-align:left;display:flex;align-items:center;justify-content:space-between}
     .dropdown-toggle::after{content:'▾';color:var(--muted);font-size:12px}
-    .dropdown-menu{display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:10px;z-index:20;max-height:280px;overflow:auto;box-shadow:0 12px 30px rgba(0,0,0,.25)}
+    .dropdown-menu{display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:10px;z-index:20;max-height:320px;overflow:auto;box-shadow:0 12px 30px rgba(0,0,0,.25)}
     .dropdown-filter.open .dropdown-menu{display:block}
+    .filter-search{width:100%;background:var(--panel-2);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:8px 10px;font:inherit;margin-bottom:8px;font-size:12px}
     .dropdown-actions{display:flex;justify-content:space-between;gap:8px;margin-bottom:8px}
     .dropdown-action{background:transparent;border:1px solid var(--border);color:var(--text);padding:6px 8px;border-radius:8px;font-size:11px;font-weight:600}
     .dropdown-options{display:flex;flex-direction:column;gap:6px}
     .dropdown-option{display:flex;align-items:flex-start;gap:8px;padding:4px 2px;font-size:12px;color:var(--text);cursor:pointer}
     .dropdown-option input{margin-top:2px}
     .dropdown-empty{font-size:12px;color:var(--muted);padding:6px 2px}
-    button{background:var(--accent);color:#08101d;border:0;border-radius:10px;padding:10px 12px;font-weight:700;cursor:pointer} button.secondary{background:transparent;color:var(--text);border:1px solid var(--border)}
-    .row{display:grid;gap:16px}.row.kpis{grid-template-columns:repeat(4,1fr)}.row.two{grid-template-columns:2fr 1fr}.row.half{grid-template-columns:1fr 1fr}
-    .kpi{background:linear-gradient(180deg, rgba(24,34,54,.9), rgba(18,26,43,.95));border:1px solid var(--border);border-radius:var(--radius);padding:16px}.kpi .label{font-size:12px;color:var(--muted);margin-bottom:8px}.kpi .value{font-size:28px;font-weight:700;font-family:var(--mono)}.kpi .meta{font-size:12px;color:var(--muted);margin-top:8px}
-    .tabs{display:flex;gap:8px;flex-wrap:wrap}.tab{border:1px solid var(--border);background:transparent;color:var(--text);padding:10px 14px;border-radius:999px;font-size:12px}.tab.active{background:rgba(96,165,250,.15);color:var(--accent);border-color:#3d5b88}
-    .panel{display:none}.panel.active{display:block}.chart-wrap{height:360px}.chart-wrap.small{height:300px}.panel h3,.card h3{margin:0 0 8px;font-size:15px}.small{font-size:12px;color:var(--muted);line-height:1.5}
-    .insights{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.insight strong{display:block;margin-bottom:6px}table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:10px 8px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}th{color:#c3d1e8;font-size:11px;text-transform:uppercase;letter-spacing:.06em}td.num{text-align:right;font-family:var(--mono)}
-    .scroll{overflow:auto;max-height:420px}.badge{display:inline-block;padding:4px 8px;border-radius:999px;background:rgba(52,211,153,.12);color:var(--accent-2);font-size:11px;font-weight:700;margin-right:6px;margin-top:6px}.pillline{display:flex;flex-wrap:wrap;gap:6px}.muted{color:var(--muted)}.footer-note{font-size:11px;color:var(--muted);line-height:1.6}.loading{padding:24px;text-align:center;color:var(--muted)}.error{color:#fecaca;background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);border-radius:12px;padding:12px}.success{color:#d1fae5;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:12px;padding:12px}.hint{margin-top:8px;padding:10px;border-radius:10px;background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.18);color:#bfdbfe;font-size:12px;line-height:1.5}
-    .stack{display:flex;flex-direction:column;gap:10px}.inline{display:flex;gap:8px;flex-wrap:wrap}.mono{font-family:var(--mono)}
-    @media (max-width:1200px){.row.kpis{grid-template-columns:repeat(2,1fr)}.row.two,.row.half,.insights{grid-template-columns:1fr}} @media (max-width:900px){.app{grid-template-columns:1fr}.sidebar{position:relative;height:auto}}
+    button{background:var(--accent);color:#08101d;border:0;border-radius:10px;padding:10px 12px;font-weight:700;cursor:pointer}
+    button.secondary{background:transparent;color:var(--text);border:1px solid var(--border)}
+    .row{display:grid;gap:16px}
+    .row.kpis{grid-template-columns:repeat(4,1fr)}
+    .row.two{grid-template-columns:2fr 1fr}
+    .row.half{grid-template-columns:1fr 1fr}
+    .kpi{background:linear-gradient(180deg, rgba(24,34,54,.9), rgba(18,26,43,.95));border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+    .kpi .label{font-size:12px;color:var(--muted);margin-bottom:8px}
+    .kpi .value{font-size:28px;font-weight:700;font-family:var(--mono)}
+    .kpi .meta{font-size:12px;color:var(--muted);margin-top:8px}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap}
+    .tab{border:1px solid var(--border);background:transparent;color:var(--text);padding:10px 14px;border-radius:999px;font-size:12px}
+    .tab.active{background:rgba(96,165,250,.15);color:var(--accent);border-color:#3d5b88}
+    .panel{display:none}
+    .panel.active{display:block}
+    .chart-wrap{height:360px}
+    .chart-wrap.small{height:300px}
+    .panel h3,.card h3{margin:0 0 8px;font-size:15px}
+    .small{font-size:12px;color:var(--muted);line-height:1.5}
+    .insights{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .insight strong{display:block;margin-bottom:6px}
+    table{width:100%;border-collapse:collapse;font-size:12px}
+    th,td{padding:10px 8px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
+    th{color:#c3d1e8;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+    td.num{text-align:right;font-family:var(--mono)}
+    .scroll{overflow:auto;max-height:420px}
+    .badge{display:inline-block;padding:4px 8px;border-radius:999px;background:rgba(52,211,153,.12);color:var(--accent-2);font-size:11px;font-weight:700;margin-right:6px;margin-top:6px}
+    .pillline{display:flex;flex-wrap:wrap;gap:6px}
+    .muted{color:var(--muted)}
+    .footer-note{font-size:11px;color:var(--muted);line-height:1.6}
+    .loading{padding:24px;text-align:center;color:var(--muted)}
+    .error{color:#fecaca;background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);border-radius:12px;padding:12px}
+    .success{color:#d1fae5;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:12px;padding:12px}
+    .hint{margin-top:8px;padding:10px;border-radius:10px;background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.18);color:#bfdbfe;font-size:12px;line-height:1.5}
+    .stack{display:flex;flex-direction:column;gap:10px}
+    .inline{display:flex;gap:8px;flex-wrap:wrap}
+    .mono{font-family:var(--mono)}
+    .chart-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .chart-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .na-toggle{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);user-select:none}
+    .na-toggle input{margin:0}
+    .info-wrap{display:grid;gap:16px}
+    .info-card{background:rgba(18,26,43,.92);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+    .info-card h3{margin:0 0 10px;font-size:16px}
+    .info-card h4{margin:16px 0 8px;font-size:13px;color:#cfe0ff}
+    .info-card p,.info-card li{font-size:13px;line-height:1.7;color:var(--text)}
+    .info-card ul{margin:0;padding-left:18px}
+    .info-lead{font-size:14px;color:#d8e6ff;line-height:1.8}
+    .term-grid{display:grid;gap:12px}
+    .term-item{padding:12px;border:1px solid var(--border);border-radius:12px;background:var(--panel)}
+    .term-item strong{display:block;margin-bottom:6px;color:#cfe0ff}
+    .rule-list{display:grid;gap:12px}
+    .rule-item{padding:12px;border:1px solid var(--border);border-radius:12px;background:var(--panel)}
+    @media (max-width:1200px){.row.kpis{grid-template-columns:repeat(2,1fr)}.row.two,.row.half,.insights{grid-template-columns:1fr}}
+    @media (max-width:900px){.app{grid-template-columns:1fr}.sidebar{position:relative;height:auto}}
   </style>
 </head>
 <body>
@@ -61,46 +116,263 @@
         <button id="resetBtn" class="secondary">Reset filters</button>
       </div>
       <div class="small">Use either the filename field or the file picker. If both are present, the selected local file is used first.</div>
-      <div class="hint">GitHub Pages cannot auto-discover filenames in your repo folder from the browser. If the input is blank, the app now falls back to the default workbook name instead of throwing an empty-filename error.</div>
+      <div class="hint">GitHub Pages cannot auto-discover filenames in your repo folder from the browser. If the input is blank, the app falls back to the default workbook name instead of throwing an empty-filename error.</div>
     </div>
 
-    <div class="filter-group card"><div class="filter-title">All Workbook Filters</div><div id="allFilters"></div></div>
-    <div class="filter-group card"><div class="filter-title">Current Selection</div><div id="selectionSummary" class="small">No workbook loaded yet.</div></div>
-    <div class="filter-group card"><div class="filter-title">Workbook Summary</div><div id="workbookSummary" class="small">Waiting for workbook…</div></div>
-    <div class="filter-group footer-note">The visible pivot sheet is aggregated, but the detailed filterable records live in the workbook pivot cache. This dashboard uses those hidden records.</div>
+    <div class="filter-group card">
+      <div class="filter-title">All Workbook Filters</div>
+      <div id="allFilters"></div>
+    </div>
+
+    <div class="filter-group card">
+      <div class="filter-title">Current Selection</div>
+      <div id="selectionSummary" class="small">No workbook loaded yet.</div>
+    </div>
+
+    <div class="filter-group card">
+      <div class="filter-title">Workbook Summary</div>
+      <div id="workbookSummary" class="small">Waiting for workbook…</div>
+    </div>
+
+    <div class="filter-group footer-note">
+      The visible pivot sheet is aggregated, but the detailed filterable records live in the workbook pivot cache. This dashboard uses those hidden records.
+    </div>
   </aside>
 
   <main class="main">
-    <div class="card"><div class="tabs"><button class="tab active" data-tab="overview">Overview</button><button class="tab" data-tab="deepdive">Deep Dive</button><button class="tab" data-tab="data">Data Table</button></div></div>
+    <div class="card">
+      <div class="tabs">
+        <button class="tab active" data-tab="overview">Overview</button>
+        <button class="tab" data-tab="deepdive">Deep Dive</button>
+        <button class="tab" data-tab="data">Data Table</button>
+        <button class="tab" data-tab="info">Info</button>
+      </div>
+    </div>
+
     <div id="status" class="card loading">Loading workbook…</div>
 
     <section id="overview" class="panel active">
       <div class="row kpis" id="kpis"></div>
+
       <div class="row two">
-        <div class="card"><h3>Trend over time</h3><div class="small">Total grants by financial year for the current filter selection</div><div class="chart-wrap"><canvas id="trendChart"></canvas></div></div>
-        <div class="card"><h3>Applicant split</h3><div class="small">Primary vs secondary</div><div class="chart-wrap small"><canvas id="appTypeChart"></canvas></div></div>
+        <div class="card">
+          <h3>Trend over time</h3>
+          <div class="small">Total grants by financial year for the current filter selection</div>
+          <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
+        </div>
+
+        <div class="card">
+          <h3>Applicant split</h3>
+          <div class="small">Primary vs secondary</div>
+          <div class="chart-wrap small"><canvas id="appTypeChart"></canvas></div>
+        </div>
       </div>
+
       <div class="row half">
-        <div class="card"><h3>Top states</h3><div class="small">Nominated position location (state)</div><div class="chart-wrap small"><canvas id="stateChart"></canvas></div></div>
-        <div class="card"><h3>Year-on-year growth</h3><div class="small">Based on total grants within the selected filters</div><div class="chart-wrap small"><canvas id="growthChart"></canvas></div></div>
+        <div class="card">
+          <h3>Top states</h3>
+          <div class="small">Nominated position location (state)</div>
+          <div class="chart-wrap small"><canvas id="stateChart"></canvas></div>
+        </div>
+
+        <div class="card">
+          <h3>Year-on-year growth</h3>
+          <div class="small">Based on total grants within the selected filters</div>
+          <div class="chart-wrap small"><canvas id="growthChart"></canvas></div>
+        </div>
       </div>
-      <div class="card"><h3>Key observations</h3><div id="insights" class="insights"></div></div>
+
+      <div class="card">
+        <h3>Key observations</h3>
+        <div id="insights" class="insights"></div>
+      </div>
     </section>
 
     <section id="deepdive" class="panel">
       <div class="row half">
-        <div class="card"><h3>Top citizenship countries</h3><div class="chart-wrap small"><canvas id="countryChart"></canvas></div></div>
-        <div class="card"><h3>Top sponsor industries</h3><div class="chart-wrap small"><canvas id="industryChart"></canvas></div></div>
+        <div class="card">
+          <div class="chart-head">
+            <h3>Top citizenship countries</h3>
+            <div class="chart-tools">
+              <label class="na-toggle">
+                <input type="checkbox" id="toggle-countryChart" checked>
+                <span>Remove not applicable</span>
+              </label>
+            </div>
+          </div>
+          <div class="chart-wrap small"><canvas id="countryChart"></canvas></div>
+        </div>
+
+        <div class="card">
+          <div class="chart-head">
+            <h3>Top sponsor industries</h3>
+            <div class="chart-tools">
+              <label class="na-toggle">
+                <input type="checkbox" id="toggle-industryChart" checked>
+                <span>Remove not applicable</span>
+              </label>
+            </div>
+          </div>
+          <div class="chart-wrap small"><canvas id="industryChart"></canvas></div>
+        </div>
       </div>
+
       <div class="row half">
-        <div class="card"><h3>Top occupations</h3><div class="chart-wrap small"><canvas id="occupationChart"></canvas></div></div>
-        <div class="card"><h3>Top SA3 locations</h3><div class="chart-wrap small"><canvas id="sa3Chart"></canvas></div></div>
+        <div class="card">
+          <div class="chart-head">
+            <h3>Top occupations</h3>
+            <div class="chart-tools">
+              <label class="na-toggle">
+                <input type="checkbox" id="toggle-occupationChart" checked>
+                <span>Remove not applicable</span>
+              </label>
+            </div>
+          </div>
+          <div class="chart-wrap small"><canvas id="occupationChart"></canvas></div>
+        </div>
+
+        <div class="card">
+          <div class="chart-head">
+            <h3>Top SA3 locations</h3>
+            <div class="chart-tools">
+              <label class="na-toggle">
+                <input type="checkbox" id="toggle-sa3Chart" checked>
+                <span>Remove not applicable</span>
+              </label>
+            </div>
+          </div>
+          <div class="chart-wrap small"><canvas id="sa3Chart"></canvas></div>
+        </div>
       </div>
-      <div class="card"><h3>Filter composition</h3><div id="compositionBadges" class="pillline"></div></div>
+
+      <div class="card">
+        <h3>Filter composition</h3>
+        <div id="compositionBadges" class="pillline"></div>
+      </div>
     </section>
 
     <section id="data" class="panel">
-      <div class="card"><h3>Filtered records summary</h3><div class="small">Grouped from the hidden pivot-cache records inside the Excel workbook</div><div class="scroll"><table><thead><tr><th>Financial year</th><th>State</th><th>Applicant type</th><th class="num">Total</th></tr></thead><tbody id="dataTableBody"></tbody></table></div></div>
+      <div class="card">
+        <h3>Filtered records summary</h3>
+        <div class="small">Grouped from the hidden pivot-cache records inside the Excel workbook</div>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Financial year</th>
+                <th>State</th>
+                <th>Applicant type</th>
+                <th class="num">Total</th>
+              </tr>
+            </thead>
+            <tbody id="dataTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="info" class="panel">
+      <div class="info-wrap">
+        <div class="info-card">
+          <h3>How to use this dashboard</h3>
+          <p class="info-lead">
+            This dashboard turns a complex skilled visa dataset into a practical decision tool. Whether you are a student, migrant, recruiter, employer, consultant, researcher, or content creator, you can use the filters and charts to quickly identify where grants are concentrated, which occupations are active, what sponsor industries are strongest, and how different countries, locations, and applicant types compare over time.
+          </p>
+
+          <h4>Why this dashboard is useful</h4>
+          <ul>
+            <li>Students and visa applicants can explore which occupations, industries, and states appear most active in the skilled visa dataset.</li>
+            <li>Recruiters and employers can identify concentration patterns by occupation, industry, and location.</li>
+            <li>Migration consultants can use it to support evidence-based discussions with clients.</li>
+            <li>Researchers and analysts can filter the dataset deeply and spot trends that are difficult to see in Excel alone.</li>
+            <li>Content creators and marketers can turn the data into attention-grabbing insights, state comparisons, trend posts, and occupation-focused narratives.</li>
+          </ul>
+
+          <h4>Best way to use it</h4>
+          <ul>
+            <li>Start with broad filters such as financial year, applicant type, and citizenship country.</li>
+            <li>Then narrow by state, SA3, SA4, occupation, sponsor industry, visa type, and subclass.</li>
+            <li>Use the Deep Dive tab to understand country, industry, occupation, and SA3 concentration.</li>
+            <li>Use the remove not applicable option when you want cleaner category charts.</li>
+            <li>Use the data table for a direct grouped summary after applying filters.</li>
+          </ul>
+
+          <h4>Marketing and content use</h4>
+          <p>
+            This dashboard is strong for storytelling. You can turn filtered views into useful posts like “Top occupations for Indian applicants in NSW”, “Which industries dominate subclass patterns”, or “How applicant trends changed over time”. The combination of filters and charts helps people move from raw data to clear, shareable insights fast.
+          </p>
+        </div>
+
+        <div class="info-card">
+          <h3>Data Items and Terminology Used</h3>
+          <div class="term-grid">
+            <div class="term-item">
+              <strong>ANZSIC</strong>
+              Australian and New Zealand Standard Industry Classification 2006 Edition produced by the Australian Bureau of Statistics (ABS). Prior to November 2008, ANZSIC 1993 was used to record industry. Data recorded using ANZSIC 1993 has been converted to ANZSIC 2006 using concordance tables provided by the ABS.
+            </div>
+
+            <div class="term-item">
+              <strong>Client Location</strong>
+              Client location filter for In Australia means the application was lodged in Australia. Client location filter for Outside Australia means the application was lodged outside Australia.
+            </div>
+
+            <div class="term-item">
+              <strong>Nominated Occupation (Major Group)</strong>
+              Nominated Occupation Major Group in Department's Systems.
+            </div>
+
+            <div class="term-item">
+              <strong>Nominated Position Location</strong>
+              The geographic location where the visa holder will be working. This may be different from the business address of the sponsor and/or the visa processing office.
+            </div>
+
+            <div class="term-item">
+              <strong>Sponsor Industry</strong>
+              The industry self-identified by the sponsoring client using the Australian and New Zealand Standard Industry Classification (ANZSIC) 2006 edition.
+            </div>
+
+            <div class="term-item">
+              <strong>Nominated Occupation</strong>
+              The occupation of the nominated position that the primary visa holder will be filling in Australia while holding a Temporary Resident (Skilled) visa based on the Australian Standard Classification of Occupations (ANZSCO) 1st Edition.
+            </div>
+
+            <div class="term-item">
+              <strong>Country of Citizenship</strong>
+              Passport holder of a country.
+            </div>
+
+            <div class="term-item">
+              <strong>Primary Applicant</strong>
+              The primary applicant is the person who must satisfy the primary criteria for the grant of a visa under the Migration Regulations.
+            </div>
+
+            <div class="term-item">
+              <strong>Secondary Applicant</strong>
+              Secondary applicants must satisfy the secondary criteria for the grant of a visa under the Regulations. In this case, a secondary applicant is generally a dependant of the primary applicant.
+            </div>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <h3>Explanatory Notes</h3>
+
+          <h4>Data Sources</h4>
+          <p>Data is sourced from Integrated Client Services Environment (ICSE) and Immigration Record and Information System (IRIS).</p>
+
+          <h4>Business Rules</h4>
+          <div class="rule-list">
+            <div class="rule-item">1. This report is based on visa grant data recorded for Temporary Resident (Skilled) visa subclasses in the current financial year and the previous financial year. It excludes a small number of visa grants made to Independent Executives, who also used to enter on Temporary Resident (Skilled) visas but are now included in the Business Skills categories.</div>
+            <div class="rule-item">2. ANZSCO was introduced in the department on 1 July 2010. Applications lodged prior to that date using the Australian Standard Classification of Occupations (ASCO), 2nd Edition have been converted to an ANZSCO code using a standard departmental mapping approved by the ABS.</div>
+            <div class="rule-item">3. Unless otherwise stated, the occupation shown in tables in this report is the nominated occupation. That is, the position that is being filled rather than the previous or usual occupation of the visa applicant. For secondary applicants, 'Not Applicable' is shown for the nominated occupation.</div>
+            <div class="rule-item">4. Sponsors self-identify with an industry classification when lodging a nomination or sponsorship. The industry classification shown is based on what the sponsor has recorded. If a sponsor has notified more than one industry over time, the most recently recorded industry classification has been used in this report. If the Temporary Resident (Skilled) visa holder has changed sponsor without lodging a new visa application, a small percentage of the industry classification may be based on the sponsor at the time of visa grant rather than the sponsor at the snapshot date. For secondary applicants, 'Not Applicable' is shown for the sponsor industry.</div>
+            <div class="rule-item">5. In some cases, 'Not recorded' or 'Not specified' appears. This mainly relates to visa applications processed in the IRIS system. IRIS does not have the capacity to record comprehensive information about sponsors and nominations. Since 1 November 2003, the ICSE system has largely replaced IRIS for processing Temporary Resident (Skilled) visas, but a small number of visas are still processed in IRIS.</div>
+            <div class="rule-item">6. From 14 September 2009, subclass 457 visa holders changing sponsor or nominated occupation do not need to lodge a new visa application if they held a valid Temporary Resident (Skilled) visa. The department estimates that the number of visa applications lodged since 14 September 2009 has been reduced by 8 to 9 per cent below the level that would have occurred without the change.</div>
+            <div class="rule-item">7. The age of the client in the table is based on the time at visa granted.</div>
+            <div class="rule-item">8. The nominated position location 'State' and the 'Statistical Area' (ASGS) of the secondary applicant is based on the primary applicant.</div>
+            <div class="rule-item">9. The nominated position location Statistical Area (ASGS) is based on the 'Postal Area 2016 to Statistical Area Level 3 2016' weighted correspondence mapping provided by the ABS.</div>
+          </div>
+        </div>
+      </div>
     </section>
   </main>
 </div>
@@ -108,7 +380,6 @@
 <script>
 const DEFAULT_WORKBOOK_NAME = 'Data File.xlsx';
 const FIELD_META=["Financial Year of Visa Grant","Financial Year Quarter","Client Location","Visa Subclass","Applicant Type","Visa Type","Visa Sub-type","Nominated Position Location (State)","Nominated Position Location (Statistical Area Level 3)","Nominated Position Location (Statistical Area Level 4)","Nominated Occupation (Major Group)","Nominated Occupation (Unit Group)","Nominated Occupation","Nominated Occupation (Skill Level)","Sponsor Industry","Gender","Citizenship Country","Age Group","Total"];
-const CORE_FIELDS=["Financial Year of Visa Grant","Applicant Type","Citizenship Country","Nominated Position Location (State)","Nominated Position Location (Statistical Area Level 3)","Nominated Position Location (Statistical Area Level 4)","Nominated Occupation (Major Group)","Nominated Occupation (Unit Group)","Nominated Occupation","Nominated Occupation (Skill Level)","Sponsor Industry","Visa Type","Visa Subclass","Visa Sub-type","Client Location","Financial Year Quarter","Gender","Age Group"];
 const MAX_SELECT_SIZE=8;
 const charts={};
 const state={workbookPath:'',fields:[],records:[],filters:{},yearsAll:[],loaded:false};
@@ -203,12 +474,13 @@ function buildDropdownFilter(field, vals){
     <label>${escapeHtml(field.name)}</label>
     <button type="button" class="dropdown-toggle" id="btn-${safeId}">${escapeHtml(getFilterSummary(field.name, state.filters[field.name] || []))}</button>
     <div class="dropdown-menu" id="menu-${safeId}">
+      <input type="text" class="filter-search" placeholder="Search ${escapeHtml(field.name)}..." data-search-target="${safeId}">
       <div class="dropdown-actions">
         <button type="button" class="dropdown-action" data-action="select-all" data-target="${safeId}">Select all</button>
         <button type="button" class="dropdown-action" data-action="clear-all" data-target="${safeId}">Clear</button>
       </div>
-      <div class="dropdown-options">
-        ${vals.length ? vals.map(v => `<label class="dropdown-option"><input type="checkbox" value="${escapeHtml(String(v))}" data-field-checkbox="${safeId}"> <span>${escapeHtml(String(v))}</span></label>`).join('') : '<div class="dropdown-empty">No values</div>'}
+      <div class="dropdown-options" id="options-${safeId}">
+        ${vals.length ? vals.map(v => `<label class="dropdown-option" data-option-label="${safeId}"><input type="checkbox" value="${escapeHtml(String(v))}" data-field-checkbox="${safeId}"> <span>${escapeHtml(String(v))}</span></label>`).join('') : '<div class="dropdown-empty">No values</div>'}
       </div>
     </div>
   </div>`;
@@ -235,13 +507,27 @@ function bindDropdownFilters(){
     });
   });
 
+  document.querySelectorAll('.filter-search').forEach(input => {
+    input.addEventListener('click', e => e.stopPropagation());
+    input.addEventListener('input', () => {
+      const safeId = input.dataset.searchTarget;
+      const q = input.value.trim().toLowerCase();
+      document.querySelectorAll(`[data-option-label="${safeId}"]`).forEach(label => {
+        const txt = label.textContent.trim().toLowerCase();
+        label.style.display = txt.includes(q) ? '' : 'none';
+      });
+    });
+  });
+
   document.querySelectorAll('[data-action="select-all"]').forEach(btn => {
     btn.addEventListener('click', e => {
       e.stopPropagation();
       const safeId = btn.dataset.target;
       const fieldName = reverseCssSafe(safeId);
-      const values = [...document.querySelectorAll(`input[data-field-checkbox="${safeId}"]`)].map(cb => cb.value);
-      state.filters[fieldName] = values;
+      const values = [...document.querySelectorAll(`input[data-field-checkbox="${safeId}"]`)]
+        .filter(cb => cb.closest('[data-option-label]').style.display !== 'none')
+        .map(cb => cb.value);
+      state.filters[fieldName] = [...new Set([...(state.filters[fieldName] || []), ...values])];
       syncDropdownUI(fieldName);
       renderAll();
     });
@@ -297,6 +583,13 @@ function initFilters(){
 function resetFilters(){
   Object.keys(state.filters).forEach(k=>state.filters[k]=[]);
   Object.keys(state.filters).forEach(syncDropdownUI);
+  document.querySelectorAll('.filter-search').forEach(input => {
+    input.value = '';
+    const safeId = input.dataset.searchTarget;
+    document.querySelectorAll(`[data-option-label="${safeId}"]`).forEach(label => {
+      label.style.display = '';
+    });
+  });
   renderAll();
 }
 
@@ -320,6 +613,34 @@ function aggregate(records,keys){
 
 function topN(records,field,n=10){
   const rows=aggregate(records,[field]).sort((a,b)=>b.Total-a.Total).slice(0,n);
+  return {labels:rows.map(r=>r[field]),values:rows.map(r=>r.Total)};
+}
+
+function isNotApplicableValue(value){
+  const v = String(value ?? '').trim().toLowerCase();
+  return (
+    v === '' ||
+    v === 'not applicable' ||
+    v === 'not specified' ||
+    v === 'not stated' ||
+    v === 'not recorded' ||
+    v === 'n/a' ||
+    v === 'na' ||
+    v === 'unknown'
+  );
+}
+
+function shouldRemoveNotApplicable(chartId){
+  const el = document.getElementById(`toggle-${chartId}`);
+  return el ? el.checked : false;
+}
+
+function topNFiltered(records, field, n=10, chartId=''){
+  let rows = aggregate(records,[field]);
+  if(chartId && shouldRemoveNotApplicable(chartId)){
+    rows = rows.filter(r => !isNotApplicableValue(r[field]));
+  }
+  rows = rows.sort((a,b)=>b.Total-a.Total).slice(0,n);
   return {labels:rows.map(r=>r[field]),values:rows.map(r=>r.Total)};
 }
 
@@ -371,7 +692,10 @@ function renderSelectionSummary(records){
   const total=records.reduce((a,b)=>a+Number(b.Total||0),0);
   const active=Object.entries(state.filters).filter(([,v])=>v && v.length);
   document.getElementById('selectionSummary').innerHTML=`<div><b>Filtered records:</b> ${records.length.toLocaleString('en-AU')}</div><div><b>Filtered grants:</b> ${fmt(total)}</div><div><b>Active filter dimensions:</b> ${active.length}</div><div style="margin-top:8px">${active.length ? active.map(([k,v])=>`<span class="badge">${escapeHtml(k)}: ${v.length}</span>`).join('') : '<span class="muted">All dimensions currently unfiltered.</span>'}</div>`;
-  document.getElementById('compositionBadges').innerHTML=active.length ? active.map(([k,v])=>`<span class="badge">${escapeHtml(k)} · ${v.length} selected</span>`).join('') : '<span class="muted">No filters selected. Dashboard is showing the full hidden pivot-cache dataset.</span>';
+  const comp = document.getElementById('compositionBadges');
+  if(comp){
+    comp.innerHTML=active.length ? active.map(([k,v])=>`<span class="badge">${escapeHtml(k)} · ${v.length} selected</span>`).join('') : '<span class="muted">No filters selected. Dashboard is showing the full hidden pivot-cache dataset.</span>';
+  }
 }
 
 function renderWorkbookSummary(){
@@ -436,10 +760,17 @@ function renderOverviewCharts(records){
 }
 
 function renderDeepDiveCharts(records){
-  const country=topN(records,'Citizenship Country',10); renderHorizontalBarChart('countryChart',country.labels,country.values,'rgba(96,165,250,.7)');
-  const industry=topN(records,'Sponsor Industry',10); renderHorizontalBarChart('industryChart',industry.labels,industry.values,'rgba(52,211,153,.7)');
-  const occ=topN(records,'Nominated Occupation',10); renderHorizontalBarChart('occupationChart',occ.labels,occ.values,'rgba(245,158,11,.7)');
-  const sa3=topN(records,'Nominated Position Location (Statistical Area Level 3)',10); renderHorizontalBarChart('sa3Chart',sa3.labels,sa3.values,'rgba(248,113,113,.7)');
+  const country=topNFiltered(records,'Citizenship Country',10,'countryChart');
+  renderHorizontalBarChart('countryChart',country.labels,country.values,'rgba(96,165,250,.7)');
+
+  const industry=topNFiltered(records,'Sponsor Industry',10,'industryChart');
+  renderHorizontalBarChart('industryChart',industry.labels,industry.values,'rgba(52,211,153,.7)');
+
+  const occ=topNFiltered(records,'Nominated Occupation',10,'occupationChart');
+  renderHorizontalBarChart('occupationChart',occ.labels,occ.values,'rgba(245,158,11,.7)');
+
+  const sa3=topNFiltered(records,'Nominated Position Location (Statistical Area Level 3)',10,'sa3Chart');
+  renderHorizontalBarChart('sa3Chart',sa3.labels,sa3.values,'rgba(248,113,113,.7)');
 }
 
 function renderAll(){
@@ -499,23 +830,41 @@ function runTests(){
   console.assert(getWorkbookInputValue()===DEFAULT_WORKBOOK_NAME || typeof getWorkbookInputValue()==='string','Workbook input helper should always return a usable string');
   console.assert(normalizeYear('2025-26 to 31 December 2025')==='2025-26*','Partial year normalization failed');
   console.assert(normalizeYear('2024-25')==='2024-25','Regular year normalization failed');
+
   const agg=aggregate([{A:'x',Total:2},{A:'x',Total:3},{A:'y',Total:4}],['A']);
   console.assert(agg.find(r=>r.A==='x').Total===5,'Aggregate sum failed');
   console.assert(agg.find(r=>r.A==='y').Total===4,'Aggregate grouping failed');
+
   const emptyInput=document.getElementById('workbookPath');
   const original=emptyInput.value;
   emptyInput.value='';
   console.assert(getWorkbookInputValue()===DEFAULT_WORKBOOK_NAME,'Blank workbook input should fall back to the default filename');
   emptyInput.value=original;
+
   console.assert(getFilterSummary('x', [])==='All','Empty dropdown summary should show All');
   console.assert(getFilterSummary('x', ['India'])==='India','Single dropdown summary should show the selected value');
   console.assert(getFilterSummary('x', ['India','China'])==='2 selected','Multi dropdown summary should show selected count');
+
+  console.assert(isNotApplicableValue('Not Applicable')===true,'Not Applicable detection failed');
+  console.assert(isNotApplicableValue('Not specified')===true,'Not specified detection failed');
+  console.assert(isNotApplicableValue('Unknown')===true,'Unknown detection failed');
+  console.assert(isNotApplicableValue('India')===false,'Normal value should not be removed');
 }
 
 function boot(){
   document.getElementById('reloadBtn').addEventListener('click',loadWorkbook);
   document.getElementById('resetBtn').addEventListener('click',resetFilters);
   document.getElementById('workbookFile').addEventListener('change',()=>{ if(getSelectedFile()) loadWorkbook(); });
+
+  ['countryChart','industryChart','occupationChart','sa3Chart'].forEach(id => {
+    const el = document.getElementById(`toggle-${id}`);
+    if(el){
+      el.addEventListener('change', () => {
+        if(state.loaded) renderDeepDiveCharts(filteredRecords());
+      });
+    }
+  });
+
   wireTabs();
   runTests();
   loadWorkbook();
