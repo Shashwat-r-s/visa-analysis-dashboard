@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title> Skilled Visa Dashboard</title>
+  <title>Skilled Visa Dashboard</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,7 +15,18 @@
     .app{display:grid;grid-template-columns:var(--sidebar) 1fr;min-height:100vh}.sidebar{background:#0d1424;border-right:1px solid var(--border);padding:18px 16px 24px;position:sticky;top:0;height:100vh;overflow:auto}.main{padding:20px;display:flex;flex-direction:column;gap:18px}
     .title{font-size:20px;font-weight:700;margin:0 0 4px}.sub{color:var(--muted);font-size:12px;line-height:1.5}.card{background:rgba(18,26,43,.92);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.18)}
     .filter-group{margin-top:16px}.filter-title{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#a8b6cf;font-weight:700;margin-bottom:10px}.filter{margin-bottom:12px}.filter label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
-    select,input[type="text"],input[type="file"]{width:100%;background:var(--panel-2);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font:inherit} select[multiple]{min-height:120px}
+    select,input[type="text"],input[type="file"]{width:100%;background:var(--panel-2);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font:inherit}
+    .dropdown-filter{position:relative}
+    .dropdown-toggle{width:100%;background:var(--panel-2);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font:inherit;text-align:left;display:flex;align-items:center;justify-content:space-between}
+    .dropdown-toggle::after{content:'▾';color:var(--muted);font-size:12px}
+    .dropdown-menu{display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:10px;z-index:20;max-height:280px;overflow:auto;box-shadow:0 12px 30px rgba(0,0,0,.25)}
+    .dropdown-filter.open .dropdown-menu{display:block}
+    .dropdown-actions{display:flex;justify-content:space-between;gap:8px;margin-bottom:8px}
+    .dropdown-action{background:transparent;border:1px solid var(--border);color:var(--text);padding:6px 8px;border-radius:8px;font-size:11px;font-weight:600}
+    .dropdown-options{display:flex;flex-direction:column;gap:6px}
+    .dropdown-option{display:flex;align-items:flex-start;gap:8px;padding:4px 2px;font-size:12px;color:var(--text);cursor:pointer}
+    .dropdown-option input{margin-top:2px}
+    .dropdown-empty{font-size:12px;color:var(--muted);padding:6px 2px}
     button{background:var(--accent);color:#08101d;border:0;border-radius:10px;padding:10px 12px;font-weight:700;cursor:pointer} button.secondary{background:transparent;color:var(--text);border:1px solid var(--border)}
     .row{display:grid;gap:16px}.row.kpis{grid-template-columns:repeat(4,1fr)}.row.two{grid-template-columns:2fr 1fr}.row.half{grid-template-columns:1fr 1fr}
     .kpi{background:linear-gradient(180deg, rgba(24,34,54,.9), rgba(18,26,43,.95));border:1px solid var(--border);border-radius:var(--radius);padding:16px}.kpi .label{font-size:12px;color:var(--muted);margin-bottom:8px}.kpi .value{font-size:28px;font-weight:700;font-family:var(--mono)}.kpi .meta{font-size:12px;color:var(--muted);margin-top:8px}
@@ -31,7 +42,7 @@
 <div class="app">
   <aside class="sidebar">
     <div class="card">
-      <div class="title">Skilled Visa (482) Dashboard</div>
+      <div class="title">Skilled Visa Dashboard</div>
       <div class="sub">This version reads the Excel workbook directly, extracts the hidden pivot-cache detail, and drives all filters from the real workbook data.</div>
     </div>
 
@@ -181,6 +192,90 @@ function uniqueValues(fieldName,records){
     .sort((a,b)=>String(a).localeCompare(String(b)));
 }
 
+function getFilterSummary(fieldName, vals){
+  if(!vals || vals.length===0) return 'All';
+  if(vals.length===1) return vals[0];
+  return `${vals.length} selected`;
+}
+
+function buildDropdownFilter(field, vals){
+  const safeId = cssSafe(field.name);
+  return `<div class="filter dropdown-filter" data-field="${escapeHtml(field.name)}" id="wrap-${safeId}">
+    <label>${escapeHtml(field.name)}</label>
+    <button type="button" class="dropdown-toggle" id="btn-${safeId}">${escapeHtml(getFilterSummary(field.name, state.filters[field.name] || []))}</button>
+    <div class="dropdown-menu" id="menu-${safeId}">
+      <div class="dropdown-actions">
+        <button type="button" class="dropdown-action" data-action="select-all" data-target="${safeId}">Select all</button>
+        <button type="button" class="dropdown-action" data-action="clear-all" data-target="${safeId}">Clear</button>
+      </div>
+      <div class="dropdown-options">
+        ${vals.length ? vals.map(v => `<label class="dropdown-option"><input type="checkbox" value="${escapeHtml(String(v))}" data-field-checkbox="${safeId}"> <span>${escapeHtml(String(v))}</span></label>`).join('') : '<div class="dropdown-empty">No values</div>'}
+      </div>
+    </div>
+  </div>`;
+}
+
+function syncDropdownUI(fieldName){
+  const safeId = cssSafe(fieldName);
+  const selected = state.filters[fieldName] || [];
+  const button = document.getElementById(`btn-${safeId}`);
+  if(button) button.textContent = getFilterSummary(fieldName, selected);
+  document.querySelectorAll(`input[data-field-checkbox="${safeId}"]`).forEach(cb => {
+    cb.checked = selected.includes(cb.value);
+  });
+}
+
+function bindDropdownFilters(){
+  document.querySelectorAll('.dropdown-toggle').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const wrap = btn.closest('.dropdown-filter');
+      const isOpen = wrap.classList.contains('open');
+      document.querySelectorAll('.dropdown-filter.open').forEach(x => x.classList.remove('open'));
+      if(!isOpen) wrap.classList.add('open');
+    });
+  });
+
+  document.querySelectorAll('[data-action="select-all"]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const safeId = btn.dataset.target;
+      const fieldName = reverseCssSafe(safeId);
+      const values = [...document.querySelectorAll(`input[data-field-checkbox="${safeId}"]`)].map(cb => cb.value);
+      state.filters[fieldName] = values;
+      syncDropdownUI(fieldName);
+      renderAll();
+    });
+  });
+
+  document.querySelectorAll('[data-action="clear-all"]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const safeId = btn.dataset.target;
+      const fieldName = reverseCssSafe(safeId);
+      state.filters[fieldName] = [];
+      syncDropdownUI(fieldName);
+      renderAll();
+    });
+  });
+
+  document.querySelectorAll('input[data-field-checkbox]').forEach(cb => {
+    cb.addEventListener('change', () => {
+      const safeId = cb.dataset.fieldCheckbox;
+      const fieldName = reverseCssSafe(safeId);
+      state.filters[fieldName] = [...document.querySelectorAll(`input[data-field-checkbox="${safeId}"]:checked`)].map(x => x.value);
+      syncDropdownUI(fieldName);
+      renderAll();
+    });
+  });
+
+  document.addEventListener('click', event => {
+    if(!event.target.closest('.dropdown-filter')) {
+      document.querySelectorAll('.dropdown-filter.open').forEach(x => x.classList.remove('open'));
+    }
+  });
+}
+
 function initFilters(){
   const allFilters=document.getElementById('allFilters');
   const coreFilters=document.getElementById('coreFilters');
@@ -194,23 +289,18 @@ function initFilters(){
     if(field.name==='Total') return;
     const vals=uniqueValues(field.name,state.records);
     state.filters[field.name]=[];
-    const selectHtml=`<div class="filter"><label>${escapeHtml(field.name)}</label><select id="f-${cssSafe(field.name)}" multiple size="${Math.min(MAX_SELECT_SIZE, Math.max(4, vals.length>10?8:vals.length||4))}">${vals.map(v=>`<option value="${escapeHtml(String(v))}">${escapeHtml(String(v))}</option>`).join('')}</select></div>`;
-    allFilters.insertAdjacentHTML('beforeend', selectHtml);
-    if(CORE_FIELDS.includes(field.name)) coreFilters.insertAdjacentHTML('beforeend', selectHtml);
+    const dropdownHtml = buildDropdownFilter(field, vals);
+    allFilters.insertAdjacentHTML('beforeend', dropdownHtml);
+    if(CORE_FIELDS.includes(field.name)) coreFilters.insertAdjacentHTML('beforeend', dropdownHtml);
   });
 
-  [...document.querySelectorAll('select[id^="f-"]')].forEach(sel=>{
-    sel.addEventListener('change',()=>{
-      const fieldName=reverseCssSafe(sel.id.slice(2));
-      state.filters[fieldName]=[...sel.selectedOptions].map(o=>o.value);
-      renderAll();
-    });
-  });
+  bindDropdownFilters();
+  Object.keys(state.filters).forEach(syncDropdownUI);
 }
 
 function resetFilters(){
   Object.keys(state.filters).forEach(k=>state.filters[k]=[]);
-  [...document.querySelectorAll('select[id^="f-"]')].forEach(sel=>{ [...sel.options].forEach(o=>o.selected=false); });
+  Object.keys(state.filters).forEach(syncDropdownUI);
   renderAll();
 }
 
@@ -421,6 +511,9 @@ function runTests(){
   emptyInput.value='';
   console.assert(getWorkbookInputValue()===DEFAULT_WORKBOOK_NAME,'Blank workbook input should fall back to the default filename');
   emptyInput.value=original;
+  console.assert(getFilterSummary('x', [])==='All','Empty dropdown summary should show All');
+  console.assert(getFilterSummary('x', ['India'])==='India','Single dropdown summary should show the selected value');
+  console.assert(getFilterSummary('x', ['India','China'])==='2 selected','Multi dropdown summary should show selected count');
 }
 
 function boot(){
