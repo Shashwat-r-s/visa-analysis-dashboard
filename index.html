@@ -64,7 +64,6 @@
       <div class="hint">GitHub Pages cannot auto-discover filenames in your repo folder from the browser. If the input is blank, the app now falls back to the default workbook name instead of throwing an empty-filename error.</div>
     </div>
 
-    <div class="filter-group card"><div class="filter-title">Core Filters</div><div id="coreFilters"></div></div>
     <div class="filter-group card"><div class="filter-title">All Workbook Filters</div><div id="allFilters"></div></div>
     <div class="filter-group card"><div class="filter-title">Current Selection</div><div id="selectionSummary" class="small">No workbook loaded yet.</div></div>
     <div class="filter-group card"><div class="filter-title">Workbook Summary</div><div id="workbookSummary" class="small">Waiting for workbook…</div></div>
@@ -278,9 +277,7 @@ function bindDropdownFilters(){
 
 function initFilters(){
   const allFilters=document.getElementById('allFilters');
-  const coreFilters=document.getElementById('coreFilters');
   allFilters.innerHTML='';
-  coreFilters.innerHTML='';
 
   state.yearsAll=uniqueValues('Financial Year of Visa Grant',state.records)
     .sort((a,b)=>String(a).replace('*','').localeCompare(String(b).replace('*','')));
@@ -291,7 +288,6 @@ function initFilters(){
     state.filters[field.name]=[];
     const dropdownHtml = buildDropdownFilter(field, vals);
     allFilters.insertAdjacentHTML('beforeend', dropdownHtml);
-    if(CORE_FIELDS.includes(field.name)) coreFilters.insertAdjacentHTML('beforeend', dropdownHtml);
   });
 
   bindDropdownFilters();
