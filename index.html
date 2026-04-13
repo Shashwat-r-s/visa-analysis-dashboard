@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BP0014 Skilled Visa Dashboard</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#0b1020;--panel:#121a2b;--panel-2:#182236;--border:#26344f;--text:#e6edf7;--muted:#94a3b8;--accent:#60a5fa;--accent-2:#34d399;--accent-3:#f59e0b;--danger:#f87171;--mono:'JetBrains Mono', monospace;--sans:'Inter', system-ui, sans-serif;--radius:16px;--sidebar:360px}
+    *{box-sizing:border-box} body{margin:0;font-family:var(--sans);background:linear-gradient(180deg,#09101d 0%, #0b1020 100%);color:var(--text)}
+    .app{display:grid;grid-template-columns:var(--sidebar) 1fr;min-height:100vh}.sidebar{background:#0d1424;border-right:1px solid var(--border);padding:18px 16px 24px;position:sticky;top:0;height:100vh;overflow:auto}.main{padding:20px;display:flex;flex-direction:column;gap:18px}
+    .title{font-size:20px;font-weight:700;margin:0 0 4px}.sub{color:var(--muted);font-size:12px;line-height:1.5}.card{background:rgba(18,26,43,.92);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.18)}
+    .filter-group{margin-top:16px}.filter-title{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#a8b6cf;font-weight:700;margin-bottom:10px}.filter{margin-bottom:12px}.filter label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+    select,input[type="text"],input[type="file"]{width:100%;background:var(--panel-2);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font:inherit} select[multiple]{min-height:120px}
+    button{background:var(--accent);color:#08101d;border:0;border-radius:10px;padding:10px 12px;font-weight:700;cursor:pointer} button.secondary{background:transparent;color:var(--text);border:1px solid var(--border)}
+    .row{display:grid;gap:16px}.row.kpis{grid-template-columns:repeat(4,1fr)}.row.two{grid-template-columns:2fr 1fr}.row.half{grid-template-columns:1fr 1fr}
+    .kpi{background:linear-gradient(180deg, rgba(24,34,54,.9), rgba(18,26,43,.95));border:1px solid var(--border);border-radius:var(--radius);padding:16px}.kpi .label{font-size:12px;color:var(--muted);margin-bottom:8px}.kpi .value{font-size:28px;font-weight:700;font-family:var(--mono)}.kpi .meta{font-size:12px;color:var(--muted);margin-top:8px}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap}.tab{border:1px solid var(--border);background:transparent;color:var(--text);padding:10px 14px;border-radius:999px;font-size:12px}.tab.active{background:rgba(96,165,250,.15);color:var(--accent);border-color:#3d5b88}
+    .panel{display:none}.panel.active{display:block}.chart-wrap{height:360px}.chart-wrap.small{height:300px}.panel h3,.card h3{margin:0 0 8px;font-size:15px}.small{font-size:12px;color:var(--muted);line-height:1.5}
+    .insights{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.insight strong{display:block;margin-bottom:6px}table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:10px 8px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}th{color:#c3d1e8;font-size:11px;text-transform:uppercase;letter-spacing:.06em}td.num{text-align:right;font-family:var(--mono)}
+    .scroll{overflow:auto;max-height:420px}.badge{display:inline-block;padding:4px 8px;border-radius:999px;background:rgba(52,211,153,.12);color:var(--accent-2);font-size:11px;font-weight:700;margin-right:6px;margin-top:6px}.pillline{display:flex;flex-wrap:wrap;gap:6px}.muted{color:var(--muted)}.footer-note{font-size:11px;color:var(--muted);line-height:1.6}.loading{padding:24px;text-align:center;color:var(--muted)}.error{color:#fecaca;background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);border-radius:12px;padding:12px}.success{color:#d1fae5;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:12px;padding:12px}.hint{margin-top:8px;padding:10px;border-radius:10px;background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.18);color:#bfdbfe;font-size:12px;line-height:1.5}
+    .stack{display:flex;flex-direction:column;gap:10px}.inline{display:flex;gap:8px;flex-wrap:wrap}.mono{font-family:var(--mono)}
+    @media (max-width:1200px){.row.kpis{grid-template-columns:repeat(2,1fr)}.row.two,.row.half,.insights{grid-template-columns:1fr}} @media (max-width:900px){.app{grid-template-columns:1fr}.sidebar{position:relative;height:auto}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="card">
+      <div class="title">BP0014 Skilled Visa Dashboard</div>
+      <div class="sub">This version reads the Excel workbook directly, extracts the hidden pivot-cache detail, and drives all filters from the real workbook data.</div>
+    </div>
+
+    <div class="filter-group card stack">
+      <div class="filter-title">Workbook</div>
+      <div class="filter">
+        <label for="workbookPath">Excel filename in repo root</label>
+        <input id="workbookPath" type="text" value="bp0014ltemporary-resident-skilled-visas-granted-report-at-2025-12-31 (1).xlsx" placeholder="Enter workbook filename, for example: data.xlsx" />
+      </div>
+      <div class="filter">
+        <label for="workbookFile">Or choose a local .xlsx file</label>
+        <input id="workbookFile" type="file" accept=".xlsx" />
+      </div>
+      <div class="inline">
+        <button id="reloadBtn">Load workbook</button>
+        <button id="resetBtn" class="secondary">Reset filters</button>
+      </div>
+      <div class="small">Use either the filename field or the file picker. If both are present, the selected local file is used first.</div>
+      <div class="hint">GitHub Pages cannot auto-discover filenames in your repo folder from the browser. If the input is blank, the app now falls back to the default workbook name instead of throwing an empty-filename error.</div>
+    </div>
+
+    <div class="filter-group card"><div class="filter-title">Core Filters</div><div id="coreFilters"></div></div>
+    <div class="filter-group card"><div class="filter-title">All Workbook Filters</div><div id="allFilters"></div></div>
+    <div class="filter-group card"><div class="filter-title">Current Selection</div><div id="selectionSummary" class="small">No workbook loaded yet.</div></div>
+    <div class="filter-group card"><div class="filter-title">Workbook Summary</div><div id="workbookSummary" class="small">Waiting for workbook…</div></div>
+    <div class="filter-group footer-note">The visible pivot sheet is aggregated, but the detailed filterable records live in the workbook pivot cache. This dashboard uses those hidden records.</div>
+  </aside>
+
+  <main class="main">
+    <div class="card"><div class="tabs"><button class="tab active" data-tab="overview">Overview</button><button class="tab" data-tab="deepdive">Deep Dive</button><button class="tab" data-tab="data">Data Table</button></div></div>
+    <div id="status" class="card loading">Loading workbook…</div>
+
+    <section id="overview" class="panel active">
+      <div class="row kpis" id="kpis"></div>
+      <div class="row two">
+        <div class="card"><h3>Trend over time</h3><div class="small">Total grants by financial year for the current filter selection</div><div class="chart-wrap"><canvas id="trendChart"></canvas></div></div>
+        <div class="card"><h3>Applicant split</h3><div class="small">Primary vs secondary</div><div class="chart-wrap small"><canvas id="appTypeChart"></canvas></div></div>
+      </div>
+      <div class="row half">
+        <div class="card"><h3>Top states</h3><div class="small">Nominated position location (state)</div><div class="chart-wrap small"><canvas id="stateChart"></canvas></div></div>
+        <div class="card"><h3>Year-on-year growth</h3><div class="small">Based on total grants within the selected filters</div><div class="chart-wrap small"><canvas id="growthChart"></canvas></div></div>
+      </div>
+      <div class="card"><h3>Key observations</h3><div id="insights" class="insights"></div></div>
+    </section>
+
+    <section id="deepdive" class="panel">
+      <div class="row half">
+        <div class="card"><h3>Top citizenship countries</h3><div class="chart-wrap small"><canvas id="countryChart"></canvas></div></div>
+        <div class="card"><h3>Top sponsor industries</h3><div class="chart-wrap small"><canvas id="industryChart"></canvas></div></div>
+      </div>
+      <div class="row half">
+        <div class="card"><h3>Top occupations</h3><div class="chart-wrap small"><canvas id="occupationChart"></canvas></div></div>
+        <div class="card"><h3>Top SA3 locations</h3><div class="chart-wrap small"><canvas id="sa3Chart"></canvas></div></div>
+      </div>
+      <div class="card"><h3>Filter composition</h3><div id="compositionBadges" class="pillline"></div></div>
+    </section>
+
+    <section id="data" class="panel">
+      <div class="card"><h3>Filtered records summary</h3><div class="small">Grouped from the hidden pivot-cache records inside the Excel workbook</div><div class="scroll"><table><thead><tr><th>Financial year</th><th>State</th><th>Applicant type</th><th class="num">Total</th></tr></thead><tbody id="dataTableBody"></tbody></table></div></div>
+    </section>
+  </main>
+</div>
+
+<script>
+const DEFAULT_WORKBOOK_NAME = 'Data File.xlsx';
+const FIELD_META=["Financial Year of Visa Grant","Financial Year Quarter","Client Location","Visa Subclass","Applicant Type","Visa Type","Visa Sub-type","Nominated Position Location (State)","Nominated Position Location (Statistical Area Level 3)","Nominated Position Location (Statistical Area Level 4)","Nominated Occupation (Major Group)","Nominated Occupation (Unit Group)","Nominated Occupation","Nominated Occupation (Skill Level)","Sponsor Industry","Gender","Citizenship Country","Age Group","Total"];
+const CORE_FIELDS=["Financial Year of Visa Grant","Applicant Type","Citizenship Country","Nominated Position Location (State)","Nominated Position Location (Statistical Area Level 3)","Nominated Position Location (Statistical Area Level 4)","Nominated Occupation (Major Group)","Nominated Occupation (Unit Group)","Nominated Occupation","Nominated Occupation (Skill Level)","Sponsor Industry","Visa Type","Visa Subclass","Visa Sub-type","Client Location","Financial Year Quarter","Gender","Age Group"];
+const MAX_SELECT_SIZE=8;
+const charts={};
+const state={workbookPath:'',fields:[],records:[],filters:{},yearsAll:[],loaded:false};
+
+function setStatus(html,cls='loading'){const el=document.getElementById('status');el.className=`card ${cls}`;el.innerHTML=html}
+function fmt(n){return Number(n||0).toLocaleString('en-AU')}
+function pct(n){return `${Number(n||0).toFixed(1)}%`}
+function normalizeYear(v){if(v==="2025-26 to 31 December 2025") return "2025-26*"; return v}
+function destroyChart(id){if(charts[id]){charts[id].destroy(); delete charts[id]}}
+function cssSafe(s){return s.replace(/[^a-zA-Z0-9]+/g,'_')}
+function reverseCssSafe(safe){return state.fields.find(f=>cssSafe(f.name)===safe)?.name || safe}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
+function getWorkbookInputValue(){
+  const input=document.getElementById('workbookPath');
+  if(!input) return DEFAULT_WORKBOOK_NAME;
+  const raw=(input.value||'').trim();
+  if(raw) return raw;
+  input.value=DEFAULT_WORKBOOK_NAME;
+  return DEFAULT_WORKBOOK_NAME;
+}
+
+function getSelectedFile(){
+  const picker=document.getElementById('workbookFile');
+  return picker && picker.files && picker.files[0] ? picker.files[0] : null;
+}
+
+function ensureWorkbookSource(){
+  const file=getSelectedFile();
+  if(file) return { kind:'file', value:file, label:file.name };
+  const name=getWorkbookInputValue();
+  if(!name) throw new Error('No workbook source available. Provide a filename or choose a local .xlsx file.');
+  return { kind:'path', value:name, label:name };
+}
+
+function buildFieldMeta(defXml){
+  const parser=new DOMParser();
+  const xml=parser.parseFromString(defXml,'application/xml');
+  const cacheFields=[...xml.getElementsByTagName('cacheField')];
+  return cacheFields.map((cf,idx)=>{
+    const name=cf.getAttribute('name')||FIELD_META[idx]||`Field ${idx}`;
+    const sharedItemsNode=cf.getElementsByTagName('sharedItems')[0];
+    const sharedItems=[];
+    if(sharedItemsNode){
+      [...sharedItemsNode.children].forEach(node=>{
+        const tag=node.localName;
+        if(tag==='s'||tag==='n'||tag==='d'||tag==='b') sharedItems.push(node.getAttribute('v'));
+        else if(tag==='m') sharedItems.push(null);
+        else sharedItems.push(node.getAttribute('v') ?? null);
+      });
+    }
+    return {index:idx,name,sharedItems};
+  });
+}
+
+function parseRecordValue(field,node){
+  const tag=node.localName;
+  if(tag==='x') return field.sharedItems[Number(node.getAttribute('v'))] ?? null;
+  if(tag==='n') return Number(node.getAttribute('v'));
+  if(tag==='s'||tag==='d'||tag==='b') return node.getAttribute('v');
+  if(tag==='m') return null;
+  return node.getAttribute('v') ?? null;
+}
+
+function parseRecords(recordsXml,fields){
+  const parser=new DOMParser();
+  const xml=parser.parseFromString(recordsXml,'application/xml');
+  const rows=[...xml.getElementsByTagName('r')];
+  return rows.map(r=>{
+    const obj={};
+    const children=[...r.children];
+    for(let i=0;i<fields.length && i<children.length;i++) obj[fields[i].name]=parseRecordValue(fields[i],children[i]);
+    obj['Financial Year of Visa Grant']=normalizeYear(obj['Financial Year of Visa Grant']);
+    return obj;
+  }).filter(r=>Number.isFinite(Number(r.Total)) && Number(r.Total)>0);
+}
+
+function uniqueValues(fieldName,records){
+  return [...new Set(records.map(r=>r[fieldName]).filter(v=>v!==null && v!==undefined && v!==''))]
+    .sort((a,b)=>String(a).localeCompare(String(b)));
+}
+
+function initFilters(){
+  const allFilters=document.getElementById('allFilters');
+  const coreFilters=document.getElementById('coreFilters');
+  allFilters.innerHTML='';
+  coreFilters.innerHTML='';
+
+  state.yearsAll=uniqueValues('Financial Year of Visa Grant',state.records)
+    .sort((a,b)=>String(a).replace('*','').localeCompare(String(b).replace('*','')));
+
+  state.fields.forEach(field=>{
+    if(field.name==='Total') return;
+    const vals=uniqueValues(field.name,state.records);
+    state.filters[field.name]=[];
+    const selectHtml=`<div class="filter"><label>${escapeHtml(field.name)}</label><select id="f-${cssSafe(field.name)}" multiple size="${Math.min(MAX_SELECT_SIZE, Math.max(4, vals.length>10?8:vals.length||4))}">${vals.map(v=>`<option value="${escapeHtml(String(v))}">${escapeHtml(String(v))}</option>`).join('')}</select></div>`;
+    allFilters.insertAdjacentHTML('beforeend', selectHtml);
+    if(CORE_FIELDS.includes(field.name)) coreFilters.insertAdjacentHTML('beforeend', selectHtml);
+  });
+
+  [...document.querySelectorAll('select[id^="f-"]')].forEach(sel=>{
+    sel.addEventListener('change',()=>{
+      const fieldName=reverseCssSafe(sel.id.slice(2));
+      state.filters[fieldName]=[...sel.selectedOptions].map(o=>o.value);
+      renderAll();
+    });
+  });
+}
+
+function resetFilters(){
+  Object.keys(state.filters).forEach(k=>state.filters[k]=[]);
+  [...document.querySelectorAll('select[id^="f-"]')].forEach(sel=>{ [...sel.options].forEach(o=>o.selected=false); });
+  renderAll();
+}
+
+function filteredRecords(){
+  return state.records.filter(r=>Object.entries(state.filters).every(([field,vals])=>!vals || vals.length===0 || vals.includes(String(r[field]))));
+}
+
+function aggregate(records,keys){
+  const map=new Map();
+  records.forEach(r=>{
+    const k=keys.map(key=>String(r[key] ?? '')).join('||');
+    map.set(k,(map.get(k)||0)+Number(r.Total||0));
+  });
+  return [...map.entries()].map(([k,total])=>{
+    const obj={};
+    k.split('||').forEach((v,i)=>obj[keys[i]]=v);
+    obj.Total=total;
+    return obj;
+  });
+}
+
+function topN(records,field,n=10){
+  const rows=aggregate(records,[field]).sort((a,b)=>b.Total-a.Total).slice(0,n);
+  return {labels:rows.map(r=>r[field]),values:rows.map(r=>r.Total)};
+}
+
+function renderKpis(records){
+  const kpis=document.getElementById('kpis');
+  if(!records.length){
+    kpis.innerHTML=`<div class="kpi"><div class="label">No matching data</div><div class="value">0</div><div class="meta">Adjust or clear filters.</div></div>`;
+    return;
+  }
+  const total=records.reduce((a,b)=>a+Number(b.Total||0),0);
+  const byYear=aggregate(records,['Financial Year of Visa Grant']).sort((a,b)=>state.yearsAll.indexOf(a['Financial Year of Visa Grant'])-state.yearsAll.indexOf(b['Financial Year of Visa Grant']));
+  const peak=byYear.reduce((m,r)=>r.Total>m.Total?r:m,byYear[0]);
+  const latest=byYear[byYear.length-1];
+  const split=aggregate(records,['Applicant Type']);
+  const primary=split.find(r=>r['Applicant Type']==='Primary')?.Total||0;
+  const secondary=split.find(r=>r['Applicant Type']==='Secondary')?.Total||0;
+  const ratio=primary+secondary>0 ? primary/(primary+secondary)*100 : 0;
+  kpis.innerHTML=`
+    <div class="kpi"><div class="label">Total grants</div><div class="value">${fmt(total)}</div><div class="meta">${records.length.toLocaleString('en-AU')} filtered record combinations</div></div>
+    <div class="kpi"><div class="label">Peak year</div><div class="value">${escapeHtml(peak['Financial Year of Visa Grant'])}</div><div class="meta">${fmt(peak.Total)} grants</div></div>
+    <div class="kpi"><div class="label">Latest visible year</div><div class="value">${escapeHtml(latest['Financial Year of Visa Grant'])}</div><div class="meta">${fmt(latest.Total)} grants</div></div>
+    <div class="kpi"><div class="label">Primary share</div><div class="value">${pct(ratio)}</div><div class="meta">Primary ${fmt(primary)} · Secondary ${fmt(secondary)}</div></div>`;
+}
+
+function renderInsights(records){
+  const el=document.getElementById('insights');
+  if(!records.length){ el.innerHTML=''; return; }
+  const byYear=aggregate(records,['Financial Year of Visa Grant']).sort((a,b)=>state.yearsAll.indexOf(a['Financial Year of Visa Grant'])-state.yearsAll.indexOf(b['Financial Year of Visa Grant']));
+  const peak=byYear.reduce((m,r)=>r.Total>m.Total?r:m,byYear[0]);
+  const trough=byYear.reduce((m,r)=>r.Total<m.Total?r:m,byYear[0]);
+  const byState=aggregate(records,['Nominated Position Location (State)']).sort((a,b)=>b.Total-a.Total);
+  const topState=byState[0];
+  const total=records.reduce((a,b)=>a+Number(b.Total||0),0);
+  const share=total ? topState.Total/total*100 : 0;
+  let yoyText='Not enough years selected.';
+  if(byYear.length>=2){
+    const prev=byYear[byYear.length-2];
+    const curr=byYear[byYear.length-1];
+    const yoy=prev.Total ? ((curr.Total-prev.Total)/prev.Total*100) : 0;
+    yoyText=`${escapeHtml(curr['Financial Year of Visa Grant'])} vs ${escapeHtml(prev['Financial Year of Visa Grant'])}: ${pct(yoy)}.`;
+  }
+  el.innerHTML=`
+    <div class="card insight"><strong>Peak vs trough</strong><div class="small">Peak year is <b>${escapeHtml(peak['Financial Year of Visa Grant'])}</b> with ${fmt(peak.Total)} grants. Lowest year in the current selection is <b>${escapeHtml(trough['Financial Year of Visa Grant'])}</b> with ${fmt(trough.Total)} grants.</div></div>
+    <div class="card insight"><strong>State concentration</strong><div class="small">Top state is <b>${escapeHtml(topState['Nominated Position Location (State)'])}</b> with ${fmt(topState.Total)} grants, equal to ${pct(share)} of the current filtered total.</div></div>
+    <div class="card insight"><strong>Recent movement</strong><div class="small">${yoyText}</div></div>`;
+}
+
+function renderSelectionSummary(records){
+  const total=records.reduce((a,b)=>a+Number(b.Total||0),0);
+  const active=Object.entries(state.filters).filter(([,v])=>v && v.length);
+  document.getElementById('selectionSummary').innerHTML=`<div><b>Filtered records:</b> ${records.length.toLocaleString('en-AU')}</div><div><b>Filtered grants:</b> ${fmt(total)}</div><div><b>Active filter dimensions:</b> ${active.length}</div><div style="margin-top:8px">${active.length ? active.map(([k,v])=>`<span class="badge">${escapeHtml(k)}: ${v.length}</span>`).join('') : '<span class="muted">All dimensions currently unfiltered.</span>'}</div>`;
+  document.getElementById('compositionBadges').innerHTML=active.length ? active.map(([k,v])=>`<span class="badge">${escapeHtml(k)} · ${v.length} selected</span>`).join('') : '<span class="muted">No filters selected. Dashboard is showing the full hidden pivot-cache dataset.</span>';
+}
+
+function renderWorkbookSummary(){
+  const lines=[];
+  lines.push(`<div><b>Detailed hidden record combinations:</b> ${state.records.length.toLocaleString('en-AU')}</div>`);
+  lines.push(`<div><b>Dimensions in hidden cache:</b> 18 categorical + 1 measure</div>`);
+  ["Citizenship Country","Nominated Occupation","Nominated Position Location (Statistical Area Level 3)","Nominated Position Location (Statistical Area Level 4)","Sponsor Industry"].forEach(name=>{
+    lines.push(`<div><b>${escapeHtml(name)}:</b> ${uniqueValues(name,state.records).length.toLocaleString('en-AU')} values</div>`);
+  });
+  document.getElementById('workbookSummary').innerHTML=lines.join('');
+}
+
+function renderTable(records){
+  const rows=aggregate(records,['Financial Year of Visa Grant','Nominated Position Location (State)','Applicant Type']).sort((a,b)=>{
+    const ya=state.yearsAll.indexOf(a['Financial Year of Visa Grant']);
+    const yb=state.yearsAll.indexOf(b['Financial Year of Visa Grant']);
+    if(ya!==yb) return ya-yb;
+    if(a['Nominated Position Location (State)']!==b['Nominated Position Location (State)']) return a['Nominated Position Location (State)'].localeCompare(b['Nominated Position Location (State)']);
+    return a['Applicant Type'].localeCompare(b['Applicant Type']);
+  });
+  document.getElementById('dataTableBody').innerHTML=rows.map(r=>`<tr><td>${escapeHtml(r['Financial Year of Visa Grant'])}</td><td>${escapeHtml(r['Nominated Position Location (State)'])}</td><td>${escapeHtml(r['Applicant Type'])}</td><td class="num">${fmt(r.Total)}</td></tr>`).join('');
+}
+
+function renderBarChart(id,labels,values,color='rgba(96,165,250,.7)'){
+  destroyChart(id);
+  const ctx=document.getElementById(id).getContext('2d');
+  charts[id]=new Chart(ctx,{type:'bar',data:{labels,datasets:[{data:values,backgroundColor:color,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#c7d2e6',maxRotation:45,minRotation:0},grid:{color:'rgba(38,52,79,.35)'}},y:{ticks:{color:'#9db0cc'},grid:{color:'rgba(38,52,79,.35)'}}}}});
+}
+
+function renderHorizontalBarChart(id,labels,values,color='rgba(52,211,153,.7)'){
+  destroyChart(id);
+  const ctx=document.getElementById(id).getContext('2d');
+  charts[id]=new Chart(ctx,{type:'bar',data:{labels,datasets:[{data:values,backgroundColor:color,borderRadius:6}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#9db0cc'},grid:{color:'rgba(38,52,79,.35)'}},y:{ticks:{color:'#c7d2e6'},grid:{display:false}}}}});
+}
+
+function renderDoughnut(id,labels,values){
+  destroyChart(id);
+  const ctx=document.getElementById(id).getContext('2d');
+  charts[id]=new Chart(ctx,{type:'doughnut',data:{labels,datasets:[{data:values,backgroundColor:['rgba(96,165,250,.8)','rgba(245,158,11,.8)','rgba(52,211,153,.8)','rgba(248,113,113,.8)']}]},options:{responsive:true,maintainAspectRatio:false}});
+}
+
+function renderTrend(records){
+  const byYear=aggregate(records,['Financial Year of Visa Grant']).sort((a,b)=>state.yearsAll.indexOf(a['Financial Year of Visa Grant'])-state.yearsAll.indexOf(b['Financial Year of Visa Grant']));
+  destroyChart('trendChart');
+  const ctx=document.getElementById('trendChart').getContext('2d');
+  charts['trendChart']=new Chart(ctx,{type:'line',data:{labels:byYear.map(r=>r['Financial Year of Visa Grant']),datasets:[{label:'Total grants',data:byYear.map(r=>r.Total),borderColor:'rgba(96,165,250,.95)',backgroundColor:'rgba(96,165,250,.15)',fill:true,tension:.25}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#c7d2e6'},grid:{color:'rgba(38,52,79,.35)'}},y:{ticks:{color:'#9db0cc'},grid:{color:'rgba(38,52,79,.35)'}}}}});
+  if(byYear.length>=2){
+    const labels=byYear.slice(1).map(r=>r['Financial Year of Visa Grant']);
+    const vals=byYear.slice(1).map((r,i)=>{const prev=byYear[i].Total; return prev ? ((r.Total-prev)/prev*100) : 0;});
+    renderBarChart('growthChart',labels,vals,'rgba(245,158,11,.7)');
+  } else {
+    renderBarChart('growthChart',[],[]);
+  }
+}
+
+function renderOverviewCharts(records){
+  const split=aggregate(records,['Applicant Type']).sort((a,b)=>b.Total-a.Total);
+  renderDoughnut('appTypeChart',split.map(r=>r['Applicant Type']),split.map(r=>r.Total));
+  const states=aggregate(records,['Nominated Position Location (State)']).sort((a,b)=>b.Total-a.Total).slice(0,10);
+  renderHorizontalBarChart('stateChart',states.map(r=>r['Nominated Position Location (State)']),states.map(r=>r.Total));
+  renderTrend(records);
+}
+
+function renderDeepDiveCharts(records){
+  const country=topN(records,'Citizenship Country',10); renderHorizontalBarChart('countryChart',country.labels,country.values,'rgba(96,165,250,.7)');
+  const industry=topN(records,'Sponsor Industry',10); renderHorizontalBarChart('industryChart',industry.labels,industry.values,'rgba(52,211,153,.7)');
+  const occ=topN(records,'Nominated Occupation',10); renderHorizontalBarChart('occupationChart',occ.labels,occ.values,'rgba(245,158,11,.7)');
+  const sa3=topN(records,'Nominated Position Location (Statistical Area Level 3)',10); renderHorizontalBarChart('sa3Chart',sa3.labels,sa3.values,'rgba(248,113,113,.7)');
+}
+
+function renderAll(){
+  const records=filteredRecords();
+  renderSelectionSummary(records);
+  renderKpis(records);
+  renderInsights(records);
+  renderOverviewCharts(records);
+  renderDeepDiveCharts(records);
+  renderTable(records);
+  setStatus(`Workbook loaded successfully. Using <b>${state.records.length.toLocaleString('en-AU')}</b> hidden record combinations extracted from the Excel pivot cache.`, 'success');
+}
+
+async function getWorkbookArrayBuffer(source){
+  if(source.kind==='file') return await source.value.arrayBuffer();
+  const resp=await fetch(source.value);
+  if(!resp.ok) throw new Error(`Could not fetch workbook: ${resp.status} ${resp.statusText}`);
+  return await resp.arrayBuffer();
+}
+
+async function loadWorkbook(){
+  try{
+    const source=ensureWorkbookSource();
+    state.workbookPath=source.label;
+    setStatus(`Loading <b>${escapeHtml(source.label)}</b>…`,'loading');
+
+    const buf=await getWorkbookArrayBuffer(source);
+    const zip=await JSZip.loadAsync(buf);
+    const defXml=await zip.file('xl/pivotCache/pivotCacheDefinition1.xml')?.async('string');
+    const recXml=await zip.file('xl/pivotCache/pivotCacheRecords1.xml')?.async('string');
+    if(!defXml || !recXml) throw new Error('Pivot cache files not found in workbook. This dashboard expects xl/pivotCache/pivotCacheDefinition1.xml and xl/pivotCache/pivotCacheRecords1.xml.');
+
+    state.fields=buildFieldMeta(defXml);
+    state.records=parseRecords(recXml,state.fields);
+    state.loaded=true;
+    initFilters();
+    renderWorkbookSummary();
+    resetFilters();
+  }catch(err){
+    console.error(err);
+    setStatus(`<div class="error"><b>Load failed.</b><br>${escapeHtml(err.message)}<div class="hint">If you are using GitHub Pages, make sure the Excel file sits in the same folder as this HTML file, or use the local file picker instead.</div></div>`,'card');
+  }
+}
+
+function wireTabs(){
+  document.querySelectorAll('.tab').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+    });
+  });
+}
+
+function runTests(){
+  console.assert(getWorkbookInputValue()===DEFAULT_WORKBOOK_NAME || typeof getWorkbookInputValue()==='string','Workbook input helper should always return a usable string');
+  console.assert(normalizeYear('2025-26 to 31 December 2025')==='2025-26*','Partial year normalization failed');
+  console.assert(normalizeYear('2024-25')==='2024-25','Regular year normalization failed');
+  const agg=aggregate([{A:'x',Total:2},{A:'x',Total:3},{A:'y',Total:4}],['A']);
+  console.assert(agg.find(r=>r.A==='x').Total===5,'Aggregate sum failed');
+  console.assert(agg.find(r=>r.A==='y').Total===4,'Aggregate grouping failed');
+  const emptyInput=document.getElementById('workbookPath');
+  const original=emptyInput.value;
+  emptyInput.value='';
+  console.assert(getWorkbookInputValue()===DEFAULT_WORKBOOK_NAME,'Blank workbook input should fall back to the default filename');
+  emptyInput.value=original;
+}
+
+function boot(){
+  document.getElementById('reloadBtn').addEventListener('click',loadWorkbook);
+  document.getElementById('resetBtn').addEventListener('click',resetFilters);
+  document.getElementById('workbookFile').addEventListener('change',()=>{ if(getSelectedFile()) loadWorkbook(); });
+  wireTabs();
+  runTests();
+  loadWorkbook();
+}
+
+document.addEventListener('DOMContentLoaded', boot);
+</script>
+</body>
+</html>
